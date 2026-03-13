@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Innovation Lawns NQ Dashboard</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+font-family: Arial;
+margin:0;
+background:#f4f6f8;
+}
+
+header{
+background:#2e7d32;
+color:white;
+padding:20px;
+text-align:center;
+font-size:22px;
+}
+
+.container{
+padding:20px;
+max-width:800px;
+margin:auto;
+}
+
+.card{
+background:white;
+padding:20px;
+margin-bottom:15px;
+border-radius:10px;
+box-shadow:0 3px 10px rgba(0,0,0,0.1);
+}
+
+.big{
+font-size:22px;
+font-weight:bold;
+}
+
+button{
+padding:10px;
+background:#2e7d32;
+color:white;
+border:none;
+border-radius:6px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+Innovation Lawns NQ Dashboard
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<form method="POST" enctype="multipart/form-data">
+
+<input type="file" name="file" required>
+
+<br><br>
+
+<button type="submit">Upload Hnry CSV</button>
+
+</form>
+
+</div>
+
+{% if revenue %}
+
+<div class="card">
+Total Revenue
+<div class="big">${{ "{:,.2f}".format(revenue) }}</div>
+</div>
+
+<div class="card">
+Net Income
+<div class="big">${{ "{:,.2f}".format(net_income) }}</div>
+</div>
+
+<div class="card">
+Projected Annual Revenue
+<div class="big">${{ "{:,.2f}".format(annual_projection) }}</div>
+</div>
+
+{% endif %}
+
+</div>
+
+</body>
+</html>
