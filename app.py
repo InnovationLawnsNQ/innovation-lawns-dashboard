@@ -19,26 +19,45 @@ def index():
 
     if request.method == "POST":
 
-        file = request.files["file"]
+        file = request.files.get("file")
 
-        if file:
+        if file and file.filename != "":
             filepath = os.path.join(UPLOAD_FOLDER, file.filename)
             file.save(filepath)
 
-            df = pd.read_csv(filepath)
+            try:
 
-            df["Invoice Date"] = pd.to_datetime(df["Invoice Date"])
-            df["Month"] = df["Invoice Date"].dt.strftime("%b %Y")
+                df = pd.read_csv(filepath)
 
-            revenue = df["Invoice ($)"].sum()
-            net_income = df["Net ($)"].sum()
-            annual_projection = revenue * 12
+                # Make sure date column exists
+                if "Invoice Date" in df.columns:
 
-            monthly_group = df.groupby("Month").sum(numeric_only=True).reset_index()
+                    df["Invoice Date"] = pd.to_datetime(df["Invoice Date"])
+                    df["Month"] = df["Invoice Date"].dt.strftime("%b %Y")
 
-            monthly_labels = monthly_group["Month"].tolist()
-            monthly_revenue = monthly_group["Invoice ($)"].tolist()
-            monthly_net = monthly_group["Net ($)"].tolist()
+                if "Invoice ($)" in df.columns:
+                    revenue = df["Invoice ($)"].sum()
+
+                if "Net ($)" in df.columns:
+                    net_income = df["Net ($)"].sum()
+
+                if revenue:
+                    annual_projection = revenue * 12
+
+                if "Month" in df.columns:
+
+                    monthly_group = df.groupby("Month").sum(numeric_only=True).reset_index()
+
+                    monthly_labels = monthly_group["Month"].tolist()
+
+                    if "Invoice ($)" in monthly_group.columns:
+                        monthly_revenue = monthly_group["Invoice ($)"].tolist()
+
+                    if "Net ($)" in monthly_group.columns:
+                        monthly_net = monthly_group["Net ($)"].tolist()
+
+            except Exception as e:
+                print("Error reading CSV:", e)
 
     return render_template(
         "index.html",
@@ -51,4 +70,4 @@ def index():
     )
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    app.run()
