@@ -1,64 +1,97 @@
 from flask import Flask, render_template, request, redirect
 import pandas as pd
+import sqlite3
 
 app = Flask(__name__)
 
-# Temporary storage (we can upgrade to database later)
-clients = []
+# ===== DATABASE SETUP =====
+def get_db():
+    conn = sqlite3.connect("clients.db")
+    conn.row_factory = sqlite3.Row
+    return conn
 
+def init_db():
+    conn = get_db()
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS clients (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            phone TEXT,
+            address TEXT,
+            service TEXT,
+            frequency TEXT,
+            price REAL
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+init_db()
+
+# ===== MAIN ROUTE =====
 @app.route("/", methods=["GET", "POST"])
 def index():
-    global clients
 
-    revenue = None
-    net_income = None
-    annual_projection = None
+    conn = get_db()
 
-    # ===== HANDLE CSV UPLOAD =====
     if request.method == "POST":
 
-        # Upload Hnry CSV
-        if "hnry_file" in request.files:
-            file = request.files["hnry_file"]
-
-            if file and file.filename != "":
-                df = pd.read_csv(file)
-
-                revenue = df.select_dtypes(include='number').sum().sum()
-                annual_projection = revenue * 12
-
-        # Upload client list CSV
+        # Upload client CSV
         if "client_file" in request.files:
             file = request.files["client_file"]
 
             if file and file.filename != "":
                 df = pd.read_csv(file)
 
-                # Convert CSV to list of dicts
-                clients = df.fillna("").to_dict(orient="records")
+                for _, row in df.iterrows():
+                    conn.execute("""
+                        INSERT INTO clients (name, phone, address, service, frequency, price)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    """, (
+                        row.get("Name"),
+                        row.get("Phone"),
+                        row.get("Address"),
+                        row.get("Service"),
+                        row.get("Frequency"),
+                        row.get("Price")
+                    ))
+
+                conn.commit()
 
         # Add manual client
         if "name" in request.form:
-            new_client = {
-                "Name": request.form.get("name"),
-                "Phone": request.form.get("phone"),
-                "Address": request.form.get("address"),
-                "Service": request.form.get("service"),
-                "Frequency": request.form.get("frequency"),
-                "Price": request.form.get("price")
-            }
+            conn.execute("""
+                INSERT INTO clients (name, phone, address, service, frequency, price)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (
+                request.form.get("name"),
+                request.form.get("phone"),
+                request.form.get("address"),
+                request.form.get("service"),
+                request.form.get("frequency"),
+                request.form.get("price")
+            ))
 
-            clients.append(new_client)
+            conn.commit()
 
         return redirect("/")
 
-    return render_template(
-        "index.html",
-        revenue=revenue,
-        net_income=net_income,
-        annual_projection=annual_projection,
-        clients=clients
-    )
+    # Fetch clients
+    clients = conn.execute("SELECT * FROM clients").fetchall()
+    conn.close()
+
+    return render_template("index.html", clients=clients)
+
+
+# ===== DELETE CLIENT =====
+@app.route("/delete/<int:id>")
+def delete_client(id):
+    conn = get_db()
+    conn.execute("DELETE FROM clients WHERE id = ?", (id,))
+    conn.commit()
+    conn.close()
+    return redirect("/")
+
 
 if __name__ == "__main__":
     app.run()
