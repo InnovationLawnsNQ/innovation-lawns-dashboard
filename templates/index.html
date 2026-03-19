@@ -64,69 +64,6 @@ text-align:left;
 
 <div class="card">
 
-<h3>Upload Hnry Revenue CSV</h3>
-
-<form method="POST" enctype="multipart/form-data">
-
-<input type="file" name="hnry_file">
-
-<br><br>
-
-<button type="submit">Upload Revenue</button>
-
-</form>
-
-</div>
-
-
-<div class="card">
-
-<h3>Upload Client List (CSV)</h3>
-
-<form method="POST" enctype="multipart/form-data">
-
-<input type="file" name="client_file">
-
-<br><br>
-
-<button type="submit">Upload Clients</button>
-
-</form>
-
-</div>
-
-
-<div class="card">
-
-<h3>Add Client Manually</h3>
-
-<form method="POST">
-
-<input name="name" placeholder="Client Name">
-
-<input name="phone" placeholder="Phone">
-
-<input name="email" placeholder="Email">
-
-<input name="address" placeholder="Address">
-
-<input name="service" placeholder="Service Type">
-
-<input name="frequency" placeholder="Service Frequency">
-
-<input name="price" placeholder="Price">
-
-<br>
-
-<button type="submit">Add Client</button>
-
-</form>
-
-</div>
-
-
-<div class="card">
-
 <h3>Client List</h3>
 
 <table>
@@ -138,28 +75,27 @@ text-align:left;
 <th>Service</th>
 <th>Frequency</th>
 <th>Price</th>
-<th>Delete</th>
+<th>Actions</th>
 </tr>
 
 {% for client in clients %}
 
 <tr>
-
-<td>{{client["name"]}}</td>
-<td>{{client["phone"]}}</td>
-<td>{{client["address"]}}</td>
-<td>{{client["service"]}}</td>
-<td>{{client["frequency"]}}</td>
-<td>{{client["price"]}}</td>
+<td>{{ client["name"] }}</td>
+<td>{{ client["phone"] }}</td>
+<td>{{ client["address"] }}</td>
+<td>{{ client["service"] }}</td>
+<td>{{ client["frequency"] }}</td>
+<td>{{ client["price"] }}</td>
 
 <td>
-    <a href="/edit/{{client['id']}}">
-        <button>Edit</button>
-      
+    <a href="/edit/{{ client['id'] }}">
+        <button style="background:#3b82f6;">Edit</button>
     </a>
-<a href="/delete/{{client['id']}}">
-<button style="background:#ef4444;">Delete</button>
-</a>
+
+    <a href="/delete/{{ client['id'] }}">
+        <button style="background:#ef4444;">Delete</button>
+    </a>
 </td>
 
 </tr>
