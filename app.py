@@ -5,8 +5,11 @@ import sqlite3
 app = Flask(__name__)
 
 # ===== DATABASE SETUP =====
+import os
+
 def get_db():
-    conn = sqlite3.connect("clients.db")
+    db_path = os.path.join("/tmp", "clients.db")  # safer location on Render
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 
