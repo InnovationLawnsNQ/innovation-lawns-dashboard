@@ -131,13 +131,18 @@ Projected Annual Revenue
 
         {% for client in clients %}
         <tr>
-            <td>{{ client.get("Name") }}</td>
-            <td>{{ client.get("Phone") }}</td>
-            <td>{{ client.get("Address") }}</td>
-            <td>{{ client.get("Service") }}</td>
-            <td>{{ client.get("Frequency") }}</td>
-            <td>{{ client.get("Price") }}</td>
-        </tr>
+    <td>{{ client["name"] }}</td>
+    <td>{{ client["phone"] }}</td>
+    <td>{{ client["address"] }}</td>
+    <td>{{ client["service"] }}</td>
+    <td>{{ client["frequency"] }}</td>
+    <td>{{ client["price"] }}</td>
+    <td>
+        <a href="/delete/{{ client['id'] }}">
+            <button style="background:red;">Delete</button>
+        </a>
+    </td>
+</tr>
         {% endfor %}
     </table>
 </div>
