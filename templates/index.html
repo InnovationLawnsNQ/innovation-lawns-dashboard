@@ -92,6 +92,56 @@ Projected Annual Revenue
 <div class="big">${{ "{:,.2f}".format(annual_projection) }}</div>
 </div>
 
+  <div class="card">
+    <h3>Upload Client List (CSV)</h3>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="client_file" required>
+        <br><br>
+        <button type="submit">Upload Clients</button>
+    </form>
+</div>
+
+  <div class="card">
+    <h3>Add Client</h3>
+
+    <form method="POST">
+        <input name="name" placeholder="Name" required><br><br>
+        <input name="phone" placeholder="Phone"><br><br>
+        <input name="address" placeholder="Address"><br><br>
+        <input name="service" placeholder="Service Type"><br><br>
+        <input name="frequency" placeholder="Frequency"><br><br>
+        <input name="price" placeholder="Price"><br><br>
+
+        <button type="submit">Add Client</button>
+    </form>
+</div>
+
+  <div class="card">
+    <h3>Client List</h3>
+
+    <table style="width:100%">
+        <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th>Service</th>
+            <th>Frequency</th>
+            <th>Price</th>
+        </tr>
+
+        {% for client in clients %}
+        <tr>
+            <td>{{ client.get("Name") }}</td>
+            <td>{{ client.get("Phone") }}</td>
+            <td>{{ client.get("Address") }}</td>
+            <td>{{ client.get("Service") }}</td>
+            <td>{{ client.get("Frequency") }}</td>
+            <td>{{ client.get("Price") }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+  
 {% endif %}
 
 </div>
