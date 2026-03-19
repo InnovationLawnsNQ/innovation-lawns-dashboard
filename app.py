@@ -1,72 +1,63 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 import pandas as pd
-import os
 
 app = Flask(__name__)
 
-UPLOAD_FOLDER = "uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Temporary storage (we can upgrade to database later)
+clients = []
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    global clients
 
     revenue = None
     net_income = None
     annual_projection = None
-    monthly_labels = []
-    monthly_revenue = []
-    monthly_net = []
 
+    # ===== HANDLE CSV UPLOAD =====
     if request.method == "POST":
 
-        file = request.files.get("file")
+        # Upload Hnry CSV
+        if "hnry_file" in request.files:
+            file = request.files["hnry_file"]
 
-        if file and file.filename != "":
-            filepath = os.path.join(UPLOAD_FOLDER, file.filename)
-            file.save(filepath)
+            if file and file.filename != "":
+                df = pd.read_csv(file)
 
-            try:
+                revenue = df.select_dtypes(include='number').sum().sum()
+                annual_projection = revenue * 12
 
-                df = pd.read_csv(filepath)
+        # Upload client list CSV
+        if "client_file" in request.files:
+            file = request.files["client_file"]
 
-                # Make sure date column exists
-                if "Invoice Date" in df.columns:
+            if file and file.filename != "":
+                df = pd.read_csv(file)
 
-                    df["Invoice Date"] = pd.to_datetime(df["Invoice Date"])
-                    df["Month"] = df["Invoice Date"].dt.strftime("%b %Y")
+                # Convert CSV to list of dicts
+                clients = df.fillna("").to_dict(orient="records")
 
-                if "Invoice ($)" in df.columns:
-                    revenue = df["Invoice ($)"].sum()
+        # Add manual client
+        if "name" in request.form:
+            new_client = {
+                "Name": request.form.get("name"),
+                "Phone": request.form.get("phone"),
+                "Address": request.form.get("address"),
+                "Service": request.form.get("service"),
+                "Frequency": request.form.get("frequency"),
+                "Price": request.form.get("price")
+            }
 
-                if "Net ($)" in df.columns:
-                    net_income = df["Net ($)"].sum()
+            clients.append(new_client)
 
-                if revenue:
-                    annual_projection = revenue * 12
-
-                if "Month" in df.columns:
-
-                    monthly_group = df.groupby("Month").sum(numeric_only=True).reset_index()
-
-                    monthly_labels = monthly_group["Month"].tolist()
-
-                    if "Invoice ($)" in monthly_group.columns:
-                        monthly_revenue = monthly_group["Invoice ($)"].tolist()
-
-                    if "Net ($)" in monthly_group.columns:
-                        monthly_net = monthly_group["Net ($)"].tolist()
-
-            except Exception as e:
-                print("Error reading CSV:", e)
+        return redirect("/")
 
     return render_template(
         "index.html",
         revenue=revenue,
         net_income=net_income,
         annual_projection=annual_projection,
-        monthly_labels=monthly_labels,
-        monthly_revenue=monthly_revenue,
-        monthly_net=monthly_net
+        clients=clients
     )
 
 if __name__ == "__main__":
