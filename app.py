@@ -95,5 +95,32 @@ def delete_client(id):
     conn.close()
     return redirect("/")
 
+@app.route("/edit/<int:id>", methods=["GET", "POST"])
+def edit_client(id):
+    conn = get_db()
+
+    if request.method == "POST":
+        conn.execute("""
+            UPDATE clients
+            SET name=?, phone=?, address=?, service=?, frequency=?, price=?
+            WHERE id=?
+        """, (
+            request.form.get("name"),
+            request.form.get("phone"),
+            request.form.get("address"),
+            request.form.get("service"),
+            request.form.get("frequency"),
+            request.form.get("price"),
+            id
+        ))
+        conn.commit()
+        conn.close()
+        return redirect("/")
+
+    client = conn.execute("SELECT * FROM clients WHERE id=?", (id,)).fetchone()
+    conn.close()
+
+    return render_template("edit.html", client=client)
+    
 if __name__ == "__main__":
     app.run()
