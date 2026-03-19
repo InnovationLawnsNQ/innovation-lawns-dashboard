@@ -4,25 +4,27 @@
 
 <title>Innovation Lawns NQ Dashboard</title>
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 
 body{
-font-family:Arial;
+font-family: Arial;
 background:#0f172a;
 color:white;
 margin:0;
-padding:30px;
+padding:20px;
 }
 
 h1{
-margin-bottom:30px;
+margin-bottom:20px;
 }
 
 .card{
 background:#1e293b;
 padding:20px;
 border-radius:10px;
-margin-bottom:25px;
+margin-bottom:20px;
 }
 
 input{
@@ -42,16 +44,31 @@ color:white;
 cursor:pointer;
 }
 
+button:hover{
+opacity:0.9;
+}
+
 table{
 width:100%;
 border-collapse:collapse;
 margin-top:10px;
 }
 
-th,td{
+th, td{
 padding:10px;
 border-bottom:1px solid #334155;
 text-align:left;
+}
+
+.actions button{
+margin-right:5px;
+}
+
+.suburb-box{
+background:#020617;
+padding:10px;
+margin-top:10px;
+border-radius:6px;
 }
 
 </style>
@@ -60,8 +77,53 @@ text-align:left;
 
 <body>
 
-<h1>Innovation Lawns NQ Dashboard</h1>
+<h1>🌴 Innovation Lawns NQ Dashboard</h1>
 
+<!-- Upload Hnry CSV -->
+<div class="card">
+<h3>Upload Hnry Revenue CSV</h3>
+
+<form method="POST" enctype="multipart/form-data">
+<input type="file" name="hnry_file">
+<br><br>
+<button type="submit">Upload Revenue</button>
+</form>
+
+</div>
+
+<!-- Upload Client List -->
+<div class="card">
+<h3>Upload Client List (CSV)</h3>
+
+<form method="POST" enctype="multipart/form-data">
+<input type="file" name="client_file">
+<br><br>
+<button type="submit">Upload Clients</button>
+</form>
+
+</div>
+
+<!-- Add Client -->
+<div class="card">
+<h3>Add Client Manually</h3>
+
+<form method="POST">
+
+<input name="name" placeholder="Client Name" required>
+<input name="phone" placeholder="Phone">
+<input name="address" placeholder="Suburb / Address">
+<input name="service" placeholder="Service Type">
+<input name="frequency" placeholder="Service Frequency">
+<input name="price" placeholder="Price">
+
+<br>
+<button type="submit">Add Client</button>
+
+</form>
+
+</div>
+
+<!-- Client Table -->
 <div class="card">
 
 <h3>Client List</h3>
@@ -86,16 +148,18 @@ text-align:left;
 <td>{{ client["address"] }}</td>
 <td>{{ client["service"] }}</td>
 <td>{{ client["frequency"] }}</td>
-<td>{{ client["price"] }}</td>
+<td>${{ client["price"] }}</td>
 
-<td>
-    <a href="/edit/{{ client['id'] }}">
-        <button style="background:#3b82f6;">Edit</button>
-    </a>
+<td class="actions">
 
-    <a href="/delete/{{ client['id'] }}">
-        <button style="background:#ef4444;">Delete</button>
-    </a>
+<a href="/edit/{{ client['id'] }}">
+<button style="background:#3b82f6;">Edit</button>
+</a>
+
+<a href="/delete/{{ client['id'] }}">
+<button style="background:#ef4444;">Delete</button>
+</a>
+
 </td>
 
 </tr>
@@ -106,6 +170,36 @@ text-align:left;
 
 </div>
 
-</body>
+<!-- Route Optimisation -->
+<div class="card">
 
+<h3>📍 Route Optimisation (Group by Area)</h3>
+
+{% if suburbs %}
+
+{% for suburb, group in suburbs.items() %}
+
+<div class="suburb-box">
+
+<h4>{{ suburb }}</h4>
+
+<ul>
+{% for client in group %}
+<li>{{ client["name"] }} - ${{ client["price"] }}</li>
+{% endfor %}
+</ul>
+
+</div>
+
+{% endfor %}
+
+{% else %}
+
+<p>No route data yet. Add clients to see optimisation.</p>
+
+{% endif %}
+
+</div>
+
+</body>
 </html>
