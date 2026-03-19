@@ -95,14 +95,5 @@ def delete_client(id):
     conn.close()
     return redirect("/")
 
-@app.route("/delete/<int:id>")
-def delete_client(id):
-    conn = get_db()
-    conn.execute("DELETE FROM clients WHERE id = ?", (id,))
-    conn.commit()
-    conn.close()
-    return redirect("/")
-
-
 if __name__ == "__main__":
     app.run()
